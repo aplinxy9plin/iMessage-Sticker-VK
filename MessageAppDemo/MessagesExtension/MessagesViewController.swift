@@ -5,13 +5,13 @@ class MessagesViewController: MSMessagesAppViewController {
     
     var stickers = [MSSticker]()
 
-    private func loadStickers() {
+    private func loadStickers(first: Int, second: Int) {
         
-       let image =  #imageLiteral(resourceName: "world")
+       let image =  #imageLiteral(resourceName: "16.png")
     
-        for i in 1...31 {
+        for i in first...second {
             let str = String(format: "%02d", i)
-            if let url = Bundle.main.url(forResource: str, withExtension: "gif") {
+            if let url = Bundle.main.url(forResource: str, withExtension: "png") {
                 
                 do {
                     let sticker = try MSSticker(contentsOfFileURL: url, localizedDescription: "")
@@ -34,23 +34,88 @@ class MessagesViewController: MSMessagesAppViewController {
         view.leftAnchor.constraint(equalTo: controller.view.leftAnchor).isActive = true
         view.rightAnchor.constraint(equalTo: controller.view.rightAnchor).isActive = true
     }
+    let labelOne: UILabel = {
+        let label = UILabel()
+        label.text = "Scroll Top"
+        label.backgroundColor = .red
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
     
+    let labelTwo: UILabel = {
+        let label = UILabel()
+        label.text = "Scroll Bottom"
+        label.backgroundColor = .green
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
     override func viewDidLoad() {
         super.viewDidLoad()
-        loadStickers()
-        setupAddBtn()
+        setupAddBtn(arg: "bulka")
     }
-    /*
-     * 添加一个button
-     */
-    func setupAddBtn() {
-        let btn = UIButton(type: .contactAdd)
-        view.addSubview(btn)
+    func setupAddBtn(arg: String) {
+        let screensize: CGRect = UIScreen.main.bounds
+        let screenWidth = screensize.width
+        let screenHeight = screensize.height
+        var scrollView: UIScrollView!
+        scrollView = UIScrollView(frame: CGRect(x: 0, y: 0, width: screenWidth, height: screenHeight))
         
-        btn.addTarget(self, action: #selector(btnOnClick), for: .touchUpInside)
+        scrollView.contentSize = CGSize(width: screenWidth, height: 2000)
+        view.addSubview(scrollView)
+        var xvalue = 8;
+        var yvalue = 17;
+        var button = UIButton();
+        var images: [UIImage] = []
+        var nameArray: [String] = []
+        switch arg {
+        case "bulka":
+            loadStickers(first: 6432, second: 6479)
+            for i in 6432..<6480 {
+                print(i)
+                nameArray.append("\(i).png")
+                images.append(UIImage(named: "\(i).png")!)
+            }
+        default:
+            print("default")
+        }
+        var checkFive = 1
+        for i in 0..<images.count {
+            if(checkFive == 5){
+                checkFive = 1
+                xvalue = 8
+                yvalue = yvalue + 110
+            }
+            checkFive = checkFive + 1
+            button = UIButton(frame: CGRect(x: xvalue, y: yvalue, width: 90, height: 90))
+            button.setImage(images[i], for: .normal)
+            button.addTarget(self, action: #selector(buttonClicked), for: .touchUpInside)
+            button.tag = i
+            scrollView.addSubview(button)
+            xvalue = xvalue + 90
+        }
+        print(yvalue)
     }
     
-    // button 点击调用的方法
+    func buttonClicked(sender: UIButton) {
+        print(sender.tag)
+        activeConversation?.insert(stickers[sender.tag], completionHandler: { (error) in
+            print("123")
+        })
+        print("Button Clicked")
+    }
+    
+    func btn1OnClick() {
+        print("hello")
+        
+        // activeConversation 会话对象
+        activeConversation?.insertText("hello", completionHandler: { (error) in
+            print("插入信息成功")
+        })
+        // 插入一个表情
+        activeConversation?.insert(stickers[0], completionHandler: { (error) in
+            print("123")
+        })
+    }
     func btnOnClick() {
         print("hello")
         
